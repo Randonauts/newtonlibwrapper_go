@@ -2,7 +2,9 @@ This is a lightweight web server that exposes NewtonLib's attractors functionali
 
 Basic setup:
 
-1. Ensure you have a golang development environment installed
+1. Ensure you have a golang and C++ development environment installed
+1a. $ go get github.com/gorilla/mux
+1b. $ sudo apt install g++ libc++abi-dev libc++-dev (if on Linux, plus replace libAttract.a with a Linux compatible binary)
 2. Clone this repo to ~/go/src/newtonlibwrapper_go
 3. cd & go install
 4. ~/go/bin/newtonlibwrapper_go (it runs the webserver on port 3333)
