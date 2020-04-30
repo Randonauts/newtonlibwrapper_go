@@ -128,6 +128,6 @@ func main() {
 	apiv0.HandleFunc("/attractors", attractors).Methods(http.MethodPost)
 
 	bindHostPort := fmt.Sprintf(":%s", port)
+	fmt.Printf("newtonlib wrapper listening on %s\n", bindHostPort)
 	log.Fatal(http.ListenAndServe(bindHostPort, r))
-	log.Println("newtonlib listening")
 }
