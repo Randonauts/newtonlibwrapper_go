@@ -8,7 +8,7 @@ Basic setup:
 2. Clone this repo to ~/go/src/newtonlibwrapper_go
 3. cd & go install
 4. ~/go/bin/newtonlibwrapper_go (it runs the webserver on port 3333)
-5. Open the following URL in Postman:
+5. Open the following URL in Postman as a POST request:
 http://127.0.0.1:3333/lib/newton/v0/attractors?radius=3000&latitude=33.585096&longitude=130.400177&gid=333
 Adjust the params as necessary. Gid can be anything for now.
 Add binary entropy (random bytes) as the request's payload. You can use entropy_payload_test.bin
