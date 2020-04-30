@@ -18,23 +18,23 @@ import (
 )
 
 func attractors(w http.ResponseWriter, r *http.Request) {
-	pathParams := mux.Vars(r)
 	w.Header().Set("Content-Type", "application/json")
 
 	// TODO: code cleanup with a generic input/args/params checking function
 
-	apiVersion := -1
 	var err error
-	if val, ok := pathParams["apiVersion"]; ok {
-		apiVersion, err = strconv.Atoi(val)
-		if apiVersion < 0 || apiVersion > 0 {
-			w.WriteHeader(http.StatusBadRequest)
-			w.Write([]byte(`{"error": "Unsupported API version"}`))
-			return
-		}
-	}
-
 	query := r.URL.Query()
+
+	// pathParams := mux.Vars(r)
+	// apiVersion := -1
+	// if val, ok := pathParams["apiVersion"]; ok {
+	// 	apiVersion, err = strconv.Atoi(val)
+	// 	if apiVersion < 0 || apiVersion > 0 {
+	// 		w.WriteHeader(http.StatusBadRequest)
+	// 		w.Write([]byte(`{"error": "Unsupported API version"}`))
+	// 		return
+	// 	}
+	// }
 
 	radius := -1.0
 	val := query.Get("radius")
@@ -124,10 +124,12 @@ func main() {
 	}
 
 	r := mux.NewRouter()
-	apiv0 := r.PathPrefix("/lib/newton/v{apiVersion}").Subrouter()
+
+	//apiv0 := r.PathPrefix("/lib/newton/v{apiVersion}").Subrouter()
+	apiv0 := r.PathPrefix("").Subrouter()
 	apiv0.HandleFunc("/attractors", attractors).Methods(http.MethodPost)
 
 	bindHostPort := fmt.Sprintf(":%s", port)
-	fmt.Printf("newtonlib wrapper listening on %s\n", bindHostPort)
+	fmt.Printf("newtonlib wrapper starting to listen on %s\n", bindHostPort)
 	log.Fatal(http.ListenAndServe(bindHostPort, r))
 }
