@@ -10,6 +10,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"os"
 	"strconv"
 	"unsafe"
 
@@ -117,10 +118,16 @@ func attractors(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	port := "3333"
+	if len(os.Args) == 2 {
+		port = os.Args[1]
+	}
+
 	r := mux.NewRouter()
 	apiv0 := r.PathPrefix("/lib/newton/v{apiVersion}").Subrouter()
 	apiv0.HandleFunc("/attractors", attractors).Methods(http.MethodPost)
 
-	log.Fatal(http.ListenAndServe(":3333", r))
-	log.Println("newtonlib listening on :3333")
+	bindHostPort := fmt.Sprintf(":%s", port)
+	log.Fatal(http.ListenAndServe(bindHostPort, r))
+	log.Println("newtonlib listening")
 }
