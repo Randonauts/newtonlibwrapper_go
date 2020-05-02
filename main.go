@@ -64,7 +64,7 @@ func attractors(w http.ResponseWriter, r *http.Request) {
 	}
 
 	gid, err := strconv.Atoi(query.Get("gid"))
-	if err != nil {
+	if gid < 1 || err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		w.Write([]byte(`{"error": "gid must be a positive number"}`))
 		return
