@@ -138,9 +138,10 @@ func main() {
 	} else {
 		// do the same as the /attractors API but as a command line program with command line arguments and entropy as stdin
 		// TODO: no args checking
+
 		entropy, err := ioutil.ReadAll(os.Stdin)
 		if err != nil {
-			fmt.Println(fmt.Sprintf(`{"error": "Cannot read entropy from stdin pipe"}`, err.Error()))
+			fmt.Println(fmt.Sprintf(`{"error": "Cannot read entropy from stdin pipe - %s"}`, err.Error()))
 			return
 		}
 
