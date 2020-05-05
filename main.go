@@ -90,14 +90,14 @@ func findAttractors(radius float64, latitude float64, longitude float64, gid int
 	var al C.ulong = 0
 	var idaPtr *C.FinalAttractorNLD_go
 	newtonEngine := C.initWithBytes(C.getHandle(), (*C.uchar)(unsafe.Pointer(&entropy[0])), neededEntropySize)
-	defer C.releaseEngine(newtonEngine)
+	defer C.releaseEngine_go(newtonEngine, idaPtr)
 
 	C.findAttractors(newtonEngine, 2.5 /*==significance*/, 4.0 /*==filtering_significance*/)
 	al = C.getAttractorsLength(newtonEngine)
 	idaPtr = C.getAttractorsNLD_go(newtonEngine, C.double(radius), location, C.ulonglong(gid))
 
 	if al > 0 {
-		ida := (*[1 << 2]C.struct_FinalAttractorNLD_go)(unsafe.Pointer(idaPtr))[:al:al]
+		ida := (*[1 << 30]C.struct_FinalAttractorNLD_go)(unsafe.Pointer(idaPtr))[:al:al]
 
 		var jsonData []byte
 		jsonData, err := json.Marshal(ida)

@@ -17,6 +17,7 @@
 
 #include <inttypes.h> 
 #include <stdio.h>
+#include <stdlib.h>
 
 
 //  Common structures
@@ -363,10 +364,12 @@ FinalAttractorNLD_go f2nld(FinalAttractor *f) {
 	EXPORTED FinalAttractorNLD_go* getAttractorsNLD_go(const unsigned long engineInstance, const double radiusM, const LatLng center, const unsigned long long gid) {
 		unsigned long al = getAttractorsLength(engineInstance);
 		FinalAttractor* fa = getAttractors(engineInstance, radiusM, center, gid);
-		static FinalAttractorNLD_go fanlds[10];
+
+		FinalAttractorNLD_go *fanlds = (FinalAttractorNLD_go*) malloc(sizeof(FinalAttractorNLD_go) * al);
 		for (int i = 0; i < al; i++) {
 			fanlds[i] = f2nld(&fa[i]);
 		}
+
 		return fanlds;
 	}
 	// [Removed] free memory allocated for array:
@@ -396,6 +399,10 @@ FinalAttractorNLD_go f2nld(FinalAttractor *f) {
 
 	//free allocated resources
 	EXPORTED void releaseEngine(const unsigned long engineInstance); // release single instance
+	EXPORTED void releaseEngine_go(const unsigned long engineInstance, FinalAttractorNLD_go *fanlds) { // release single instance
+		free(fanlds);
+		releaseEngine(engineInstance);
+	}
 	EXPORTED void releaseHandle(const unsigned long handle); 	// this frees all engines tied to handle
 	EXPORTED void finalize(); 	// !!!CAUTION!!! this frees all engines systemwide, call before unloading the dll
 	//хардресет
