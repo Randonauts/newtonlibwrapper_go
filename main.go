@@ -89,7 +89,7 @@ func findAttractors(radius float64, latitude float64, longitude float64, gid int
 
 	var al C.ulong = 0
 	var idaPtr *C.FinalAttractorNLD_go
-	newtonEngine := C.initWithBytes(C.getHandle(), (*C.uchar)(unsafe.Pointer(&entropy[0])), neededEntropySize)
+	newtonEngine := C.initWithBytes(C.getHandle(), (*C.uchar)(unsafe.Pointer(&entropy[0])), C.ulong(len(entropy)))
 	defer C.releaseEngine_go(newtonEngine, idaPtr)
 
 	C.findAttractors(newtonEngine, 2.5 /*==significance*/, 4.0 /*==filtering_significance*/)
