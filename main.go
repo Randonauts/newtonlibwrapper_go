@@ -5,7 +5,7 @@ package main
 // #include "export_h.h"
 import "C"
 import (
-	"encoding/json"
+	// "encoding/json"
 	"flag"
 	"fmt"
 	"io/ioutil"
@@ -24,48 +24,62 @@ func attractors(w http.ResponseWriter, r *http.Request) {
 	var err error
 	query := r.URL.Query()
 
-	radius := -1.0
-	val := query.Get("radius")
-	radius, err = strconv.ParseFloat(val, 64)
-	if radius <= 0 || err != nil {
+	pointType := 0.0 // 1 - Attractor, 2 - Void, 3 - Anomaly
+	val := query.Get("t")
+	pointType, err = strconv.ParseFloat(val, 64)
+	if pointType < 1 || pointType > 3  || err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(`{"error": "radius must me a positive number(Float64)"}`))
+		// w.Write([]byte(`{"error": "pointType must me a number(Float64) between 1-3"}`))
+		w.Write([]byte(`{"error": "Steve is thirsty"}`))
 		return
 	}
 
+	radius := 3000.0
+	// val := query.Get("radius")
+	// radius, err = strconv.ParseFloat(val, 64)
+	// if radius <= 0 || err != nil {
+	// 	w.WriteHeader(http.StatusBadRequest)
+	// 	w.Write([]byte(`{"error": "radius must me a positive number(Float64)"}`))
+	// 	return
+	// }
+
 	latitude := -1.0
-	val = query.Get("latitude")
+	val = query.Get("l1")
 	latitude, err = strconv.ParseFloat(val, 64)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(`{"error": "latitude must me a number(Float64)"}`))
+		// w.Write([]byte(`{"error": "latitude must me a number(Float64)"}`))
+		w.Write([]byte(`{"error": "Steve is thirsty"}`))
 		return
 	}
 
 	longitude := -1.0
-	val = query.Get("longitude")
+	val = query.Get("l2")
 	longitude, err = strconv.ParseFloat(val, 64)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(`{"error": "longitude must me a number(Float64)"}`))
+		// w.Write([]byte(`{"error": "longitude must me a number(Float64)"}`))
+		w.Write([]byte(`{"error": "Steve is thirsty"}`))
 		return
 	}
 
-	gid, err := strconv.Atoi(query.Get("gid"))
-	if gid < 1 || err != nil {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(`{"error": "gid must be a positive number"}`))
-		return
-	}
+	gid := 23
+	// gid, err := strconv.Atoi(query.Get("gid"))
+	// if gid < 1 || err != nil {
+	// 	w.WriteHeader(http.StatusBadRequest)
+	// 	w.Write([]byte(`{"error": "gid must be a positive number"}`))
+	// 	return
+	// }
 
 	entropy, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte(fmt.Sprintf(`{"error": "Cannot read entropy payload - %s"}`, err.Error())))
+		// w.Write([]byte(fmt.Sprintf(`{"error": "Cannot read entropy payload - %s"}`, err.Error())))
+		w.Write([]byte(`{"error": "Steve is thirsty"}`))
 		return
 	}
 
-	res, err := findAttractors(radius, latitude, longitude, gid, entropy)
+	res, err := findAttractors(pointType, radius, latitude, longitude, gid, entropy)
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		w.Write([]byte(err.Error()))
@@ -76,11 +90,12 @@ func attractors(w http.ResponseWriter, r *http.Request) {
 	w.Write([]byte(*res))
 }
 
-func findAttractors(radius float64, latitude float64, longitude float64, gid int, entropy []byte) (*string, error) {
+func findAttractors(pointType float64, radius float64, latitude float64, longitude float64, gid int, entropy []byte) (*string, error) {
 	var dots C.ulong = C.getOptimizedDots(C.double(radius))
 	var neededEntropySize C.ulong = C.requiredEntropyBytes(dots)
 	if len(entropy) < int(neededEntropySize) {
-		return nil, fmt.Errorf(`{"error": "Entropy payload is too small; have %d bytes, need %d bytes"}`, len(entropy), neededEntropySize)
+		// return nil, fmt.Errorf(`{"error": "Entropy payload is too small; have %d bytes, need %d bytes"}`, len(entropy), neededEntropySize)
+		return nil, fmt.Errorf(`{"error": "Steve is thirsty"}`)
 	}
 
 	var location C.LatLng
@@ -89,6 +104,7 @@ func findAttractors(radius float64, latitude float64, longitude float64, gid int
 
 	var al C.ulong = 0
 	var idaPtr *C.FinalAttractorNLD_go
+
 	newtonEngine := C.initWithBytes(C.getHandle(), (*C.uchar)(unsafe.Pointer(&entropy[0])), C.ulong(len(entropy)))
 	defer C.releaseEngine_go(newtonEngine, idaPtr)
 
@@ -99,18 +115,60 @@ func findAttractors(radius float64, latitude float64, longitude float64, gid int
 	if al > 0 {
 		ida := (*[1 << 30]C.struct_FinalAttractorNLD_go)(unsafe.Pointer(idaPtr))[:al:al]
 
-		var jsonData []byte
-		jsonData, err := json.Marshal(ida)
-		if err != nil {
-			return nil, fmt.Errorf(`{"error": "Error marshalling the response to JSON - %s"}`, err.Error())
-		}
+		// var jsonData []byte
+		// jsonData, err := json.Marshal(ida)
+		// if err != nil {
+		// 	return nil, fmt.Errorf(`{"error": "Error marshalling the response to JSON - %s"}`, err.Error())
+		// }
 
-		ret := fmt.Sprintf(`{"points": %s}`, string(jsonData))
-		return &ret, nil
+		// ret := fmt.Sprintf(`{"points": %s}`, string(jsonData))
+
+		// return &ret, nil
+
+		var retIda *C.struct_FinalAttractorNLD_go
+		var i C.ulong = 0
+
+		if al > 0 {
+			// Find the highest z-score
+			for i = 0; i < al; i++ {
+				if pointType == 1 && float64(ida[i].Type) == 1 {
+					if retIda == nil {
+						retIda = &ida[i]
+					} else if retIda.Z_score < ida[i].Z_score {
+						retIda = &ida[i]
+					}
+				} else if pointType == 2 && float64(ida[i].Type) == 2 {
+					if retIda == nil {
+						retIda = &ida[i]
+					} else if retIda.Z_score < ida[i].Z_score {
+						retIda = &ida[i]
+					}
+				}
+			}
+
+			if retIda != nil {
+				// Respond with the point
+				resp := "{"
+				resp += "\"l1\":" + strconv.FormatFloat(float64(retIda.Center.Point.Latitude), 'f', -1, 64) + ","
+				resp += "\"l2\":" + strconv.FormatFloat(float64(retIda.Center.Point.Longitude), 'f', -1, 64) + ","
+				resp += "\"t\":" + strconv.FormatFloat(float64(retIda.Type), 'f', 2, 64) + ","
+				resp += "\"p\":" + strconv.FormatFloat(float64(retIda.Power), 'f', 2, 64) + ","
+				resp += "\"z\":" + strconv.FormatFloat(float64(retIda.Z_score), 'f', 2, 64) + ","
+				resp += "\"r\":" + strconv.FormatFloat(float64(retIda.RadiusM), 'f', 2, 64)
+				resp += "}"
+
+				return &resp, nil
+			}
+		} else {
+			// No points found of pointType
+			resp := fmt.Sprintf(``)
+			return &resp, nil
+		}
 	}
 
-	ret := fmt.Sprintf(`{"points": []}`)
-	return &ret, nil
+	// No points found at all
+	resp := fmt.Sprintf(``)
+	return &resp, nil
 }
 
 func main() {
@@ -145,7 +203,8 @@ func main() {
 			return
 		}
 
-		res, err := findAttractors(*radius, *latitude, *longitude, *gid, entropy)
+		pointType := 3.0 // default to Anomaly
+		res, err := findAttractors(pointType, *radius, *latitude, *longitude, *gid, entropy)
 		if err != nil {
 			fmt.Println(err.Error())
 			return
