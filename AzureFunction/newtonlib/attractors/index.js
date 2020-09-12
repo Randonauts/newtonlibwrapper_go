@@ -23,6 +23,9 @@ module.exports = async function (context, req) {
             encoding: "binary"
         });
 
+        context.log(`body length: ${req.body.length}`);
+        //context.log(`body: ${req.body}`);
+
         child.stdin.write(req.body);
         child.stdin.end();
 
@@ -31,6 +34,7 @@ module.exports = async function (context, req) {
         var out = stdout.toString();
         var err = stderr.toString();
         if (err) {
+            // context.log(`error response: ${err}`);
             context.res = {
                 status: 400,
                 body: JSON.stringify({
@@ -40,6 +44,8 @@ module.exports = async function (context, req) {
             };
             return;
         }
+
+        // context.log(`response: ${out}`);
 
         context.res = {
             status: 200,
