@@ -132,15 +132,17 @@ func findAttractors(pointType float64, radius float64, latitude float64, longitu
 			// Find the highest z-score
 			for i = 0; i < al; i++ {
 				if pointType == 1 && float64(ida[i].Type) == 1 {
+					// Attractors
 					if retIda == nil {
 						retIda = &ida[i]
 					} else if retIda.Z_score < ida[i].Z_score {
 						retIda = &ida[i]
 					}
 				} else if pointType == 2 && float64(ida[i].Type) == 2 {
+					// Voids
 					if retIda == nil {
 						retIda = &ida[i]
-					} else if retIda.Z_score < ida[i].Z_score {
+					} else if retIda.Z_score > ida[i].Z_score {
 						retIda = &ida[i]
 					}
 				}
