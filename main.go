@@ -177,6 +177,7 @@ func main() {
 	var longitude = flag.Float64("longitude", 0.0, "longitude where to base the search center (e.g. 130.0)")
 	var latitude = flag.Float64("latitude", 0.0, "latitude where to base the search center (e.g. 33.0)")
 	var radius = flag.Float64("radius", 3000.0, "radius in m within which to search")
+	var pointType = flag.Float64("pointType", 1, "type of point to look for: 1 - Attractor, 2 - Void")
 	var port = flag.Int("port", 3333, "port for REST API HTTP server")
 	var apiMode = flag.Bool("server", true, "true to run in REST API HTTP server mode, false to run from CLI")
 	flag.Parse()
@@ -203,8 +204,7 @@ func main() {
 			return
 		}
 
-		pointType := 3.0 // default to Anomaly
-		res, err := findAttractors(pointType, *radius, *latitude, *longitude, *gid, entropy)
+		res, err := findAttractors(*pointType, *radius, *latitude, *longitude, *gid, entropy)
 		if err != nil {
 			fmt.Println(err.Error())
 			return

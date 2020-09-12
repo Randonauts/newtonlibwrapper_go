@@ -12,10 +12,11 @@ module.exports = async function (context, req) {
 
             const child = spawn('./bin/newtonlibwrapper_go',
             [
-                `-radius=${req.query.radius}`,
-                `-latitude=${req.query.latitude}`,
-                `-longitude=${req.query.longitude}`,
-                `-gid=${req.query.gid}`,
+                `-pointType=${req.query.t}`
+                `-radius=3000`,
+                `-latitude=${req.query.l1}`,
+                `-longitude=${req.query.l2}`,
+                `-gid=23`,
                 `-server=false`
             ],
             {
